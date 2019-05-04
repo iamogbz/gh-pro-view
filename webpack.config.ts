@@ -1,12 +1,13 @@
-const path = require("path");
+import * as path from "path";
+import { Configuration } from "webpack";
 
-module.exports = {
+const configuration: Configuration = {
     mode: "production",
     entry: "./src",
     output: {
         filename: "main.js",
         path: path.resolve(__dirname, "lib"),
-        libraryTarget: "commonjs-module",
+        libraryTarget: "commonjs",
     },
     module: {
         rules: [
@@ -16,12 +17,17 @@ module.exports = {
                 use: {
                     loader: "babel-loader",
                     options: {
-                        presets: ["@babel/preset-env"],
-                        plugins: ["babel-plugin-transform-class-properties"],
+                        presets: ["@babel/preset-typescript"],
                     },
                 },
             },
         ],
     },
+    resolve: {
+        extensions: [".js", ".ts"],
+        modules: [path.resolve("./src"), path.resolve("./node_modules")],
+    },
     devtool: "source-map",
 };
+
+export default configuration; // tslint:disable-line
