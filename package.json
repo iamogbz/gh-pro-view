@@ -1,27 +1,25 @@
 {
-    "name": "boilerplate",
+    "name": "gh-pro-view",
     "version": "0.0.1",
-    "description": "NodeJS Boilerplate with precommit test and linting configured",
+    "description": "Github PR View Extension",
     "author": "iamogbz",
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/iamogbz/node-js-boilerplate.git"
+        "url": "git+https://github.com/iamogbz/gh-pro-view.git"
     },
     "bugs": {
-        "url": "https://github.com/iamogbz/node-js-boilerplate/issues"
+        "url": "https://github.com/iamogbz/gh-pro-view/issues"
     },
-    "homepage": "https://github.com/iamogbz/node-js-boilerplate#readme",
+    "homepage": "https://github.com/iamogbz/gh-pro-view#readme",
     "license": "GPL-3.0",
     "keywords": [
         "node",
-        "nodejs",
+        "github",
+        "pullrequest",
         "typescript",
-        "boilerplate",
-        "testing",
-        "linting",
-        "ci",
-        "package",
-        "npm"
+        "chrome",
+        "webextension",
+        "package"
     ],
     "engines": {
         "node": ">=8",
