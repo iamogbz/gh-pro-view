@@ -8,7 +8,7 @@ const srcFolder = path.resolve("./src");
 
 const configuration: Configuration = {
     devtool: "source-map",
-    entry: ["background"].reduce(
+    entry: ["background", "content", "options"].reduce(
         (entries, name) =>
             Object.assign(entries, {
                 [name]: ["@babel/polyfill", path.join(srcFolder, name)],
@@ -24,7 +24,7 @@ const configuration: Configuration = {
                 use: {
                     loader: "babel-loader",
                     options: {
-                        presets: ["@babel/preset-typescript"],
+                        presets: ["@babel/react", "@babel/preset-typescript"],
                     },
                 },
             },
@@ -36,14 +36,25 @@ const configuration: Configuration = {
     },
     plugins: [
         new CopyWebpackPlugin(
-            [{ from: "./src/manifest.json" }],
+            ["content", "options"].reduce(
+                (config, name) => {
+                    config.push(
+                        ...["html", "css"].map(ext => ({
+                            from: path.join(srcFolder, name, `index.${ext}`),
+                            to: `${name}.${ext}`,
+                        })),
+                    );
+                    return config;
+                },
+                [{ from: path.join(srcFolder, "manifest.json") }],
+            ),
         ),
         new ResponsiveJSONWebpackPlugin({
             outputFolder: ".",
         }),
     ],
     resolve: {
-        extensions: [".js", ".ts"],
+        extensions: [".js", ".jsx", ".ts", ".tsx"],
         modules: [srcFolder, path.resolve("./node_modules")],
     },
 };

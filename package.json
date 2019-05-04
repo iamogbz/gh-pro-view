@@ -96,6 +96,7 @@
         "@babel/core": "^7.3.4",
         "@babel/polyfill": "^7.4.4",
         "@babel/preset-env": "^7.4.4",
+        "@babel/preset-react": "^7.0.0",
         "@babel/preset-typescript": "^7.3.3",
         "@commitlint/cli": "^7.5.2",
         "@commitlint/config-conventional": "^7.5.0",
@@ -103,7 +104,9 @@
         "@types/chrome": "0.0.81",
         "@types/copy-webpack-plugin": "^4.4.3",
         "@types/jest": "^24.0.9",
+        "@types/lodash": "^4.14.123",
         "@types/node": "^11.9.5",
+        "@types/react": "^16.8.16",
         "@types/source-map": "^0.5.2",
         "@types/webpack": "^4.4.25",
         "acorn": "^6.1.1",
@@ -140,5 +143,14 @@
         "typescript": "^3.3.3333",
         "webpack": "^4.29.6",
         "webpack-cli": "^3.2.3"
+    },
+    "dependencies": {
+        "dom-chef": "^3.6.0",
+        "dom-loaded": "^1.2.0",
+        "lodash": "^4.17.11",
+        "select-dom": "^5.0.1",
+        "type-fest": "^0.4.1",
+        "webext-dynamic-content-scripts": "^5.0.2",
+        "webext-options-sync": "^0.16.0"
     }
 }

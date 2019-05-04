@@ -2,18 +2,23 @@
     "manifest_version": 2,
     "name": "GitHub PRoView",
     "version": "0.0.0",
-
     "description": "Github PR View Extension",
-    "icons": {
-        "16": "icon.16.png",
-        "32": "icon.32.png",
-        "48": "icon.48.png",
-        "128": "icon.128.png"
-    },
-
+    "icons": { "128": "icon.128.png" },
     "background": {
         "scripts": ["background.js"]
     },
+    "content_scripts": [
+        {
+            "run_at": "document_start",
+            "matches": ["https://github.com/*", "https://gist.github.com/*"],
+            "css": ["content.css"],
+            "js": ["content.js"]
+        }
+    ],
+    "options_ui": {
+        "page": "options.html",
+        "chrome_style": true
+    },
     "short_name": "gh-pro-view",
-    "permissions": []
+    "permissions": ["storage", "activeTab", "https://api.github.com/*"]
 }
