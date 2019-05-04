@@ -42,8 +42,23 @@
         "plugins": [
             "@semantic-release/commit-analyzer",
             "@semantic-release/release-notes-generator",
-            "@semantic-release/github",
-            "@semantic-release/npm"
+            [
+                "semantic-release-chrome",
+                {
+                    "asset": "release.zip",
+                    "extensionId": "kcghmfiabkomnbibgfahnhfdongpjobf"
+                }
+            ],
+            [
+                "@semantic-release/github",
+                {
+                    "assets": [
+                        {
+                            "path": "release.zip"
+                        }
+                    ]
+                }
+            ]
         ]
     },
     "jest": {
@@ -134,6 +149,7 @@
         "responsive-json-webpack-plugin": "^1.5.2",
         "rxjs": "^6.4.0",
         "semantic-release": "^15.13.3",
+        "semantic-release-chrome": "^1.1.1",
         "stylelint": "^10.0.0",
         "stylelint-config-standard": "^18.3.0",
         "stylelint-config-styled-components": "^0.1.1",
