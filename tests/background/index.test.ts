@@ -1,4 +1,4 @@
-import { helloWorld } from "../src";
+import { helloWorld } from "background";
 
 describe("entry", () => {
     it("runs a test", () => {

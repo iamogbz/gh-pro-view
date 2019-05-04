@@ -47,13 +47,16 @@
         ]
     },
     "jest": {
+        "preset": "ts-jest",
+        "moduleDirectories": [
+            "./src",
+            "./tests",
+            "./node_modules"
+        ],
         "testPathIgnorePatterns": [
             "./artifacts/",
             "./node_modules/"
         ],
-        "transform": {
-            "^.+\\.tsx?$": "ts-jest"
-        },
         "coverageDirectory": "./artifacts/coverage"
     },
     "commitlint": {
