@@ -42,18 +42,36 @@
         "plugins": [
             "@semantic-release/commit-analyzer",
             "@semantic-release/release-notes-generator",
-            "@semantic-release/github",
-            "@semantic-release/npm"
+            [
+                "semantic-release-chrome",
+                {
+                    "asset": "release.zip",
+                    "extensionId": "kcghmfiabkomnbibgfahnhfdongpjobf"
+                }
+            ],
+            [
+                "@semantic-release/github",
+                {
+                    "assets": [
+                        {
+                            "path": "release.zip"
+                        }
+                    ]
+                }
+            ]
         ]
     },
     "jest": {
+        "preset": "ts-jest",
+        "moduleDirectories": [
+            "./src",
+            "./tests",
+            "./node_modules"
+        ],
         "testPathIgnorePatterns": [
             "./artifacts/",
             "./node_modules/"
         ],
-        "transform": {
-            "^.+\\.tsx?$": "ts-jest"
-        },
         "coverageDirectory": "./artifacts/coverage"
     },
     "commitlint": {
@@ -91,22 +109,27 @@
     "devDependencies": {
         "@babel/cli": "^7.2.3",
         "@babel/core": "^7.3.4",
+        "@babel/polyfill": "^7.4.4",
         "@babel/preset-env": "^7.4.4",
+        "@babel/preset-react": "^7.0.0",
         "@babel/preset-typescript": "^7.3.3",
-        "@types/chrome": "0.0.81",
-        "@types/copy-webpack-plugin": "^4.4.3",
-        "@types/jest": "^24.0.9",
-        "@types/node": "^11.9.5",
-        "@types/source-map": "^0.5.2",
-        "@types/webpack": "^4.4.25",
         "@commitlint/cli": "^7.5.2",
         "@commitlint/config-conventional": "^7.5.0",
         "@commitlint/travis-cli": "^7.5.2",
+        "@types/chrome": "0.0.81",
+        "@types/copy-webpack-plugin": "^4.4.3",
+        "@types/jest": "^24.0.9",
+        "@types/lodash": "^4.14.123",
+        "@types/node": "^11.9.5",
+        "@types/react": "^16.8.16",
+        "@types/source-map": "^0.5.2",
+        "@types/webpack": "^4.4.25",
         "acorn": "^6.1.1",
         "babel-eslint": "^10.0.1",
         "babel-loader": "^8.0.5",
         "babel-runtime": "^6.26.0",
         "commitizen": "^3.0.7",
+        "copy-webpack-plugin": "^5.0.3",
         "coveralls": "^3.0.3",
         "cz-conventional-changelog": "^2.1.0",
         "eslint": "^5.16.0",
@@ -118,14 +141,17 @@
         "eslint-plugin-react": "^7.12.4",
         "husky": "^2.1.0",
         "jest": "^24.1.0",
+        "jest-mock-props": "^1.7.0",
         "lint-staged": "^8.1.4",
         "prettier": "^1.16.4",
         "prettier-eslint": "^8.8.2",
         "prettier-tslint": "^0.4.2",
+        "responsive-json-webpack-plugin": "^1.5.2",
         "rxjs": "^6.4.0",
         "semantic-release": "^15.13.3",
+        "semantic-release-chrome": "^1.1.1",
         "stylelint": "^10.0.0",
-        "stylelint-config-standard": "^18.2.0",
+        "stylelint-config-standard": "^18.3.0",
         "stylelint-config-styled-components": "^0.1.1",
         "stylelint-processor-styled-components": "^1.5.2",
         "ts-jest": "^24.0.0",
@@ -134,5 +160,14 @@
         "typescript": "^3.3.3333",
         "webpack": "^4.29.6",
         "webpack-cli": "^3.2.3"
+    },
+    "dependencies": {
+        "dom-chef": "^3.6.0",
+        "dom-loaded": "^1.2.0",
+        "lodash": "^4.17.11",
+        "select-dom": "^5.0.1",
+        "type-fest": "^0.4.1",
+        "webext-dynamic-content-scripts": "^5.0.2",
+        "webext-options-sync": "^0.16.0"
     }
 }
