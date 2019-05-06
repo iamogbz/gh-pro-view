@@ -63,7 +63,7 @@ export const v3 = memoize(
         const response = await fetch(api3 + query, {
             headers: {
                 "Accept": "application/vnd.github.v3+json",
-                "User-Agent": "Refined GitHub",
+                "User-Agent": "GitHub PRoView",
                 ...(personalToken
                     ? { Authorization: `token ${personalToken}` }
                     : {}),

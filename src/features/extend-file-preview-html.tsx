@@ -10,20 +10,49 @@ import { isPRFiles, isSingleFile } from "utils/page-detect";
 import { selectOrThrow } from "utils/select-or-throw";
 import { getCleanPathname } from "utils/url-path";
 
+const featureClass = "ghprv-extend-file-preview-html";
 const htmlTypes: Set<string> = new Set(["html", "xhtml"]);
 
 const pathToBlob = (path: string) => `https://raw.githubusercontent.com${path}`;
 
 const asNode = (element: JSX.Element): Node => (element as unknown) as Node;
-const viewerButtonToggleGroup = ({ isPR }: { isPR: boolean }) => (
-    <span className={`BtnGroup ghprv ${isPR ? "mt-n1" : ""}`}>
+
+const selectButton = (element: HTMLElement) => {
+    select(
+        `.BtnGroup.${featureClass} .BtnGroup-item.selected`,
+    ).classList.remove("selected");
+    element.classList.add("selected");
+    element.blur();
+};
+
+const showSource = (frameElem: HTMLElement) => (
+    event: React.MouseEvent,
+): void => {
+    frameElem.style.display = "none";
+    selectButton(event.currentTarget as HTMLElement);
+};
+const showRendered = (frameElem: HTMLElement) => (
+    event: React.MouseEvent,
+): void => {
+    frameElem.style.display = "block";
+    selectButton(event.currentTarget as HTMLElement);
+};
+
+const viewerButtonToggleGroup = ({
+    frameElem,
+    isPR,
+}: {
+    frameElem?: HTMLElement;
+    isPR: boolean;
+}) => (
+    <span className={`BtnGroup ${featureClass} ${isPR ? "mt-n1" : ""}`}>
         <button
             className={`btn btn-sm BtnGroup-item tooltipped tooltipped-${
                 isPR ? "w" : "n"
             } source ${isPR ? "js-source" : ""} selected`}
             aria-current="true"
             aria-label={`Display the source ${isPR ? "diff" : "blob"}`}
-            type="submit"
+            onClick={showSource(frameElem)}
             data-disable-with=""
         >
             <svg
@@ -44,8 +73,9 @@ const viewerButtonToggleGroup = ({ isPR }: { isPR: boolean }) => (
             className={`btn btn-sm BtnGroup-item tooltipped tooltipped-${
                 isPR ? "w" : "n"
             } rendered ${isPR ? "js-rendered" : ""}`}
+            disabled={frameElem ? false : true}
             aria-label={`Display the ${isPR ? "rich diff" : "rendered blob"}`}
-            type="submit"
+            onClick={showRendered(frameElem)}
             data-disable-with=""
         >
             <svg
@@ -69,6 +99,7 @@ const viewerButtonToggleGroup = ({ isPR }: { isPR: boolean }) => (
 const frameStyle = {
     background: "white",
     border: "none",
+    display: "none",
     height: "100%",
     left: 0,
     padding: 0,
@@ -77,13 +108,16 @@ const frameStyle = {
     width: "100%",
 };
 const frameElement = (props: { src: string; srcDoc: string }) => (
-    <iframe style={frameStyle} className="ghprv" {...props} />
+    <iframe style={frameStyle} className={featureClass} {...props} />
 );
 
-const addButtonsToFileHeaderActions = (actionsElem: HTMLElement): void => {
-    if (select.exists(".BtnGroup.ghprv", actionsElem)) return;
+const addButtonsToFileHeaderActions = (
+    actionsElem: HTMLElement,
+    frameElem: HTMLElement,
+): void => {
+    if (select.exists(`.BtnGroup.${featureClass}`, actionsElem)) return;
     actionsElem.insertBefore(
-        asNode(viewerButtonToggleGroup({ isPR: isPRFiles() })),
+        asNode(viewerButtonToggleGroup({ isPR: isPRFiles(), frameElem })),
         actionsElem.firstChild,
     );
 };
@@ -92,12 +126,11 @@ const addFrameToFileBody = (
     bodyElem: HTMLElement,
     frameURL: string,
     frameHTML: string,
-): void => {
-    if (select.exists("iframe.ghprv", bodyElem)) return;
+): HTMLElement => {
+    if (select.exists(`iframe.${featureClass}`, bodyElem)) return null;
+    const frameElem = frameElement({ src: frameURL, srcDoc: frameHTML });
     bodyElem.style.position = "relative";
-    bodyElem.appendChild(
-        asNode(frameElement({ src: frameURL, srcDoc: frameHTML })),
-    );
+    return bodyElem.appendChild(asNode(frameElem)) as HTMLElement;
 };
 
 const extendHtmlFileDetailsElements = (): void => {
@@ -111,6 +144,7 @@ const extendHtmlFileDetailsElements = (): void => {
         if (htmlTypes.has(fileType)) {
             addButtonsToFileHeaderActions(
                 selectOrThrow(".file-actions>.mt-1", fileHeaderElem),
+                null,
             );
         }
     }
@@ -127,13 +161,16 @@ const initSingleFile = async (): Promise<void> => {
         ".Box.mt-3>.Box-header.py-2",
     );
     if (!htmlTypes.has(fileType)) return;
-    addButtonsToFileHeaderActions(selectOrThrow(".d-flex", fileHeaderElem));
     const fileURL = pathToBlob(filePath);
     const fileHTML = await fetch(fileURL).then(r => r.text());
-    addFrameToFileBody(
+    const frameElem = addFrameToFileBody(
         selectOrThrow(".Box.mt-3>.Box-body.blob-wrapper"),
         fileURL,
         fileHTML,
+    );
+    addButtonsToFileHeaderActions(
+        selectOrThrow(".d-flex", fileHeaderElem),
+        frameElem,
     );
 };
 

@@ -104,8 +104,8 @@ const groupPRFileTypes = (prFiles: PRFile[]): PRFileTypes => {
 
 // --> DOM Element Classes and Selectors
 const fileFilterSelectAllClass = "js-file-filter-select-all-container";
-const fileFilterDeselectAllClass = "rfg-deselect-all-file-types";
-const fileFilterExtendToggleId = "rfg-extend-file-types-toggle";
+const fileFilterDeselectAllClass = "ghprv-deselect-all-file-types";
+const fileFilterExtendToggleId = "ghprv-extend-file-types-toggle";
 
 const getFileFilterElement = (): HTMLElement =>
     selectOrThrow(".js-file-filter");
