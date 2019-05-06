@@ -15,11 +15,11 @@ Some ideas for github web ui
 
 ## Features
 
-### Extend File Preview HTML
+### File Preview HTML
 
 ![extend-file-preview-html-demo](src/assets/images/extend-file-preview-html-demo.gif)
 
-### Extend File Types Filter
+### File Types Filter
 
 ![extend-file-types-filter-demo](src/assets/images/extend-file-types-demo.gif)
 

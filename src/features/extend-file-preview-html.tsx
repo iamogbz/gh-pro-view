@@ -43,7 +43,6 @@ const selectButton = (element: HTMLElement) => {
     ).classList.remove("selected");
     element.classList.add("selected");
     element.blur();
-    return false;
 };
 
 const showSource = (frameElem: HTMLElement) => (event: React.MouseEvent) => {
