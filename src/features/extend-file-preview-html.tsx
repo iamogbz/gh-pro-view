@@ -8,12 +8,32 @@ import { log } from "utils/log";
 import { observeEl } from "utils/mutation-observer";
 import { isPRFiles, isSingleFile } from "utils/page-detect";
 import { selectOrThrow } from "utils/select-or-throw";
-import { getCleanPathname } from "utils/url-path";
+import { getRepoPath, getUserRepo } from "utils/url-path";
 
 const featureClass = "ghprv-extend-file-preview-html";
 const htmlTypes: Set<string> = new Set(["html", "xhtml"]);
 
-const pathToBlob = (path: string) => `https://raw.githubusercontent.com${path}`;
+const pathToBlob = (path: string) =>
+    `https://raw.githubusercontent.com/${getUserRepo()}/${path}`;
+const pathToApi = (path: string) => `repos/${getUserRepo()}/contents/${path}`;
+const safeFetch = (input: RequestInfo, init?: RequestInit) =>
+    fetch(input, init).then(r => {
+        if (r.status !== 200) throw new Error(`${r.status} - ${r.statusText}`);
+        return r;
+    });
+
+const getFileContent = async (path: string) => {
+    try {
+        return await safeFetch(pathToBlob(path)).then(r => r.text());
+    } catch (e) {
+        // log.error(e);
+        const [ref, ...rest] = path.split("/");
+        const { content } = await api.v3(
+            `${pathToApi(rest.join("/"))}?ref=${ref}`,
+        );
+        return atob(content);
+    }
+};
 
 const asNode = (element: JSX.Element): Node => (element as unknown) as Node;
 
@@ -155,17 +175,16 @@ const initPRFiles = async (): Promise<void> => {
 };
 
 const initSingleFile = async (): Promise<void> => {
-    const filePath = window.location.pathname.replace("/blob/", "/");
+    const filePath = getRepoPath().replace("blob/", "");
     const fileType = getFileType(filePath);
     const fileHeaderElem: HTMLElement = selectOrThrow(
         ".Box.mt-3>.Box-header.py-2",
     );
     if (!htmlTypes.has(fileType)) return;
-    const fileURL = pathToBlob(filePath);
-    const fileHTML = await fetch(fileURL).then(r => r.text());
+    const fileHTML = await getFileContent(filePath);
     const frameElem = addFrameToFileBody(
         selectOrThrow(".Box.mt-3>.Box-body.blob-wrapper"),
-        fileURL,
+        pathToBlob(filePath),
         fileHTML,
     );
     addButtonsToFileHeaderActions(
@@ -174,7 +193,7 @@ const initSingleFile = async (): Promise<void> => {
     );
 };
 
-const init = async (): Promise<boolean> => {
+const initFeature = async (): Promise<boolean> => {
     const enabled = [
         isPRFiles() && initPRFiles(),
         isSingleFile() && initSingleFile(),
@@ -185,6 +204,6 @@ const init = async (): Promise<boolean> => {
 featureSet.add({
     id: "extend-file-preview-html",
     include: () => isPRFiles() || isSingleFile(),
-    init,
+    init: initFeature,
     load: onAjaxedPagesRaw,
 });
