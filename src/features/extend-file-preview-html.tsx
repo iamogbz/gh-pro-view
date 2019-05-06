@@ -7,9 +7,10 @@ import { observeEl } from "utils/mutation-observer";
 import { isPRFiles, isSingleFile } from "utils/page-detect";
 import { selectOrThrow } from "utils/select-or-throw";
 
+const htmlTypes: Set<string> = new Set(["html", "xhtml"]);
 const asNode = (element: JSX.Element): Node => (element as unknown) as Node;
 const viewerButtonToggleGroup = ({ isPR }: { isPR: boolean }) => (
-    <span className={`BtnGroup ${isPR ? "mt-n1" : ""}`}>
+    <span className={`BtnGroup ghprv ${isPR ? "mt-n1" : ""}`}>
         <button
             className={`btn btn-sm BtnGroup-item tooltipped tooltipped-${
                 isPR ? "w" : "n"
@@ -59,15 +60,11 @@ const viewerButtonToggleGroup = ({ isPR }: { isPR: boolean }) => (
     </span>
 );
 
-const addButtonsToFileHeaderActions = (fileHeaderElem: HTMLElement): void => {
-    const mountPoint: HTMLElement = selectOrThrow(
-        ".file-actions .mt-1",
-        fileHeaderElem,
-    );
-    if (select.exists(".BtnGroup.mt-n1", fileHeaderElem)) return;
-    mountPoint.insertBefore(
+const addButtonsToFileHeaderActions = (actionsElem: HTMLElement): void => {
+    if (select.exists(".BtnGroup.ghprv", actionsElem)) return;
+    actionsElem.insertBefore(
         asNode(viewerButtonToggleGroup({ isPR: isPRFiles() })),
-        mountPoint.firstChild,
+        actionsElem.firstChild,
     );
 };
 
@@ -79,8 +76,10 @@ const extendHtmlFileDetailsElements = (): void => {
         }
 
         const fileType = getFileType(fileHeaderElem.dataset.path);
-        if (fileType === "html") {
-            addButtonsToFileHeaderActions(fileHeaderElem);
+        if (htmlTypes.has(fileType)) {
+            addButtonsToFileHeaderActions(
+                selectOrThrow(".file-actions>.mt-1", fileHeaderElem),
+            );
         }
     }
 };
@@ -90,7 +89,13 @@ const initPRFiles = async (): Promise<void> => {
 };
 
 const initSingleFile = async (): Promise<void> => {
-    log("init single file");
+    const fileType = getFileType(window.location.pathname);
+    const fileHeaderElem: HTMLElement = selectOrThrow(
+        ".Box.mt-3>.Box-header.py-2",
+    );
+    if (htmlTypes.has(fileType)) {
+        addButtonsToFileHeaderActions(selectOrThrow(".py-1", fileHeaderElem));
+    }
 };
 
 const init = async (): Promise<boolean> => {
