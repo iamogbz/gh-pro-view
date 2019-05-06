@@ -3,8 +3,10 @@ import { featureSet, onAjaxedPagesRaw } from "features";
 import debounce from "lodash/debounce";
 import select from "select-dom";
 import * as api from "utils/api";
+import { getFileType } from "utils/file-type";
 import { observeEl } from "utils/mutation-observer";
 import { isPRFiles } from "utils/page-detect";
+import { selectOrThrow } from "utils/select-or-throw";
 import { getCleanPathname } from "utils/url-path";
 
 // --> Types and Interfaces
@@ -74,19 +76,18 @@ const getPRFiles = async (): Promise<PRFile[]> => {
     );
 };
 
-const getFileType = (
+const getExtendedFileType = (
     fileName: string,
     shouldExtend: boolean = state.shouldExtendFileType,
 ): string => {
-    const basename = fileName.split("/").pop() || "";
-    const i = shouldExtend ? basename.indexOf(".") : basename.lastIndexOf(".");
-    return i < 0 ? "No extension" : basename.substr(i);
+    const fileType = getFileType(fileName, shouldExtend ? 0 : 1);
+    return fileType ? `.${fileType}` : "No extension";
 };
 
 const groupPRFileTypes = (prFiles: PRFile[]): PRFileTypes => {
     const grouped: Record<string, { count: number; deleted: number }> = {};
     for (const { fileName, isDeleted } of prFiles) {
-        const fileType = getFileType(fileName);
+        const fileType = getExtendedFileType(fileName);
         if (!(fileType in grouped)) {
             grouped[fileType] = { count: 0, deleted: 0 };
         }
@@ -103,17 +104,8 @@ const groupPRFileTypes = (prFiles: PRFile[]): PRFileTypes => {
 
 // --> DOM Element Classes and Selectors
 const fileFilterSelectAllClass = "js-file-filter-select-all-container";
-const fileFilterDeselectAllClass = "rfg-deselect-all-file-types";
-const fileFilterExtendToggleId = "rfg-extend-file-types-toggle";
-
-const selectOrThrow = (selectors: any, ...args: any[]) => {
-    const result = select(selectors, ...args);
-    if (!result) {
-        throw new Error(`Not found: ${selectors}, ${args}`);
-    }
-
-    return result;
-};
+const fileFilterDeselectAllClass = "ghprv-deselect-all-file-types";
+const fileFilterExtendToggleId = "ghprv-extend-file-types-toggle";
 
 const getFileFilterElement = (): HTMLElement =>
     selectOrThrow(".js-file-filter");
@@ -249,9 +241,9 @@ const extendFileDetailsElements = (): void => {
             return;
         }
 
-        const fileType = getFileType(fileHeaderElem.dataset.path);
-        fileHeaderElem.dataset.fileType = fileType || "";
-        elem.dataset.fileType = fileType || "";
+        const fileType = getExtendedFileType(fileHeaderElem.dataset.path);
+        fileHeaderElem.dataset.fileType = fileType;
+        elem.dataset.fileType = fileType;
     }
 };
 
