@@ -43,19 +43,16 @@ const selectButton = (element: HTMLElement) => {
     ).classList.remove("selected");
     element.classList.add("selected");
     element.blur();
+    return false;
 };
 
-const showSource = (frameElem: HTMLElement) => (
-    event: React.MouseEvent,
-): void => {
+const showSource = (frameElem: HTMLElement) => (event: React.MouseEvent) => {
     frameElem.style.display = "none";
-    selectButton(event.currentTarget as HTMLElement);
+    return selectButton(event.currentTarget as HTMLElement);
 };
-const showRendered = (frameElem: HTMLElement) => (
-    event: React.MouseEvent,
-): void => {
+const showRendered = (frameElem: HTMLElement) => (event: React.MouseEvent) => {
     frameElem.style.display = "block";
-    selectButton(event.currentTarget as HTMLElement);
+    return selectButton(event.currentTarget as HTMLElement);
 };
 
 const viewerButtonToggleGroup = ({
@@ -66,13 +63,13 @@ const viewerButtonToggleGroup = ({
     isPR: boolean;
 }) => {
     const disabled = frameElem ? false : true;
-    const disabledTooltip = "HTML preview disabled";
+    const disabledTooltip = "HTML render toggle disabled";
     return (
         <span className={`BtnGroup ${featureClass} ${isPR ? "mt-n1" : ""}`}>
             <button
                 className={`btn btn-sm BtnGroup-item tooltipped tooltipped-${
                     isPR ? "w" : "n"
-                } source ${isPR ? "js-source" : ""} selected`}
+                } source ${isPR ? "js-source" : ""} ${isPR ? "" : "selected"}`}
                 disabled={disabled}
                 aria-current="true"
                 aria-label={
@@ -160,39 +157,50 @@ const addFrameToFileBody = (
     frameURL: string,
     frameHTML: string,
 ): HTMLElement => {
-    if (select.exists(`iframe.${featureClass}`, bodyElem)) return null;
+    if (select.exists(`iframe.${featureClass}`, bodyElem)) {
+        return select(`iframe.${featureClass}`, bodyElem);
+    }
     const frameElem = frameElement({ src: frameURL, srcDoc: frameHTML });
     bodyElem.style.position = "relative";
     return bodyElem.appendChild(asNode(frameElem)) as HTMLElement;
 };
 
-const extendHtmlFileDetailsElements = (): void => {
+const extendHtmlFileDetailsElements = async (): Promise<void> => {
+    const commitSha = (select(
+        ".js-reviews-container #head_sha",
+    ) as HTMLInputElement).value;
     for (const elem of select.all(".file.Details")) {
         const fileHeaderElem: HTMLElement = selectOrThrow(".file-header", elem);
-        if (!fileHeaderElem.dataset.path) {
-            return;
-        }
-
-        const fileType = getFileType(fileHeaderElem.dataset.path);
-        if (htmlTypes.has(fileType)) {
-            addButtonsToFileHeaderActions(
-                selectOrThrow(".file-actions>.mt-1", fileHeaderElem),
-                null,
-            );
-        }
+        if (!fileHeaderElem.dataset.path) continue;
+        const filePath = `${commitSha}/${fileHeaderElem.dataset.path}`;
+        const fileType = getFileType(filePath);
+        if (!htmlTypes.has(fileType)) continue;
+        const fileHTML = await getFileContent(filePath);
+        const frameElem = addFrameToFileBody(
+            selectOrThrow(".js-file-content", elem),
+            pathToBlob(filePath),
+            fileHTML,
+        );
+        addButtonsToFileHeaderActions(
+            selectOrThrow(".file-actions>.mt-1", fileHeaderElem),
+            frameElem,
+        );
     }
 };
 
 const initPRFiles = async (): Promise<void> => {
-    observeEl("#files", extendHtmlFileDetailsElements, { childList: true });
+    observeEl("#files", extendHtmlFileDetailsElements, {
+        childList: true,
+        subtree: true,
+    });
 };
 
 const initSingleFile = async (): Promise<void> => {
-    const filePath = getRepoPath().replace("blob/", "");
-    const fileType = getFileType(filePath);
     const fileHeaderElem: HTMLElement = selectOrThrow(
         ".Box.mt-3>.Box-header.py-2",
     );
+    const filePath = getRepoPath().replace("blob/", "");
+    const fileType = getFileType(filePath);
     if (!htmlTypes.has(fileType)) return;
     const fileHTML = await getFileContent(filePath);
     const frameElem = addFrameToFileBody(
