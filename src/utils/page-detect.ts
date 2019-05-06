@@ -6,3 +6,5 @@ export const isPR = (): boolean => new RegExp(regexPR).test(getRepoPath()!);
 
 export const isPRFiles = (): boolean =>
     new RegExp(`${regexPR}/files`).test(getRepoPath()!);
+
+export const isSingleFile = (): boolean => /^blob\//.test(getRepoPath()!);
