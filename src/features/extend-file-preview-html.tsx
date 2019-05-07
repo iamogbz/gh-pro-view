@@ -47,10 +47,19 @@ const selectButton = (element: HTMLElement) => {
 
 const showSource = (frameElem: HTMLElement) => (event: React.MouseEvent) => {
     frameElem.style.display = "none";
+    const frameParent = frameElem.parentElement;
+    log(frameParent);
+    frameParent.style.overflowX = "auto";
+    frameParent.style.height = "auto";
     return selectButton(event.currentTarget as HTMLElement);
 };
 const showRendered = (frameElem: HTMLElement) => (event: React.MouseEvent) => {
     frameElem.style.display = "block";
+    const frameParent = frameElem.parentElement;
+    log((frameElem as AnyObject).contentWindow.document.body.scrollHeight);
+    frameParent.style.overflowX = "hidden";
+    frameParent.style.height = `${(frameElem as AnyObject).contentWindow
+        .document.body.scrollHeight + 20}px`;
     return selectButton(event.currentTarget as HTMLElement);
 };
 
