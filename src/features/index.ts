@@ -14,9 +14,9 @@ export const initAll = () =>
         if (include()) {
             try {
                 await load(init);
-                log("✅", id);
+                log("🐙", id);
             } catch (error) {
-                log("❌", id);
+                log("☠️", id);
                 log.error(error);
             }
         }
