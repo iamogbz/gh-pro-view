@@ -38,9 +38,10 @@ const getFileContent = async (path: string) => {
 const asNode = (element: JSX.Element): Node => (element as unknown) as Node;
 
 const selectButton = (element: HTMLElement) => {
-    select(
+    const selectedButton = select(
         `.BtnGroup.${featureClass} .BtnGroup-item.selected`,
-    ).classList.remove("selected");
+    );
+    if (selectedButton) selectedButton.classList.remove("selected");
     element.classList.add("selected");
     element.blur();
 };

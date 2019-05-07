@@ -125,7 +125,7 @@ const asNode = (element: JSX.Element): Node => (element as unknown) as Node;
 
 const extendFileTypesToggle = ({ onChange }: { onChange(): void }) => (
     <label>
-        <span>.extend.file.types </span>
+        <span>Use full extension </span>
         <input
             type="checkbox"
             id={fileFilterExtendToggleId}
