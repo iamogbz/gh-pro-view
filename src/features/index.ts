@@ -9,15 +9,14 @@ export const onAjaxedPagesRaw = async (callback: () => void): Promise<void> => {
 };
 
 export const featureSet = new Set<Feature>();
-export const initAll = () =>
+export const initAll = () => {
     featureSet.forEach(async ({ id, include, init, load }) => {
-        if (include()) {
-            try {
-                await load(init);
-                log("🐙", id);
-            } catch (error) {
-                log("☠️", id);
-                log.error(error);
-            }
+        try {
+            await load(async () => (await include()) && init());
+            log("🐙", id);
+        } catch (error) {
+            log("☠️", id);
+            log.error(error);
         }
     });
+};
