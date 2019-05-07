@@ -4,11 +4,10 @@ import { featureSet, onAjaxedPagesRaw } from "features";
 import select from "select-dom";
 import * as api from "utils/api";
 import { getFileType } from "utils/file-type";
-import { log } from "utils/log";
 import { observeEl } from "utils/mutation-observer";
-import { isPRFiles, isSingleFile } from "utils/page-detect";
+import { isCommit, isPRFiles, isSingleFile } from "utils/page-detect";
 import { selectOrThrow } from "utils/select-or-throw";
-import { getRepoPath, getUserRepo } from "utils/url-path";
+import { getCommitSha, getRepoPath, getUserRepo } from "utils/url-path";
 
 const featureClass = "ghprv-extend-file-preview-html";
 const htmlTypes: Set<string> = new Set(["html", "xhtml"]);
@@ -64,25 +63,29 @@ const showRendered = (frameElem: HTMLElement) => (event: React.MouseEvent) => {
 
 const viewerButtonToggleGroup = ({
     frameElem,
-    isPR,
+    isFileList,
 }: {
     frameElem?: HTMLElement;
-    isPR: boolean;
+    isFileList: boolean;
 }) => {
     const disabled = frameElem ? false : true;
     const disabledTooltip = "HTML render toggle disabled";
     return (
-        <span className={`BtnGroup ${featureClass} ${isPR ? "mt-n1" : ""}`}>
+        <span
+            className={`BtnGroup ${featureClass} ${isFileList ? "mt-n1" : ""}`}
+        >
             <button
                 className={`btn btn-sm BtnGroup-item tooltipped tooltipped-${
-                    isPR ? "w" : "n"
-                } source ${isPR ? "js-source" : ""} ${isPR ? "" : "selected"}`}
+                    isFileList ? "w" : "n"
+                } source ${isFileList ? "js-source" : ""} ${
+                    isFileList ? "" : "selected"
+                }`}
                 disabled={disabled}
                 aria-current="true"
                 aria-label={
                     disabled
                         ? disabledTooltip
-                        : `Display the source ${isPR ? "diff" : "blob"}`
+                        : `Display the source ${isFileList ? "diff" : "blob"}`
                 }
                 onClick={disabled ? null : showSource(frameElem)}
                 data-disable-with=""
@@ -103,13 +106,15 @@ const viewerButtonToggleGroup = ({
             </button>
             <button
                 className={`btn btn-sm BtnGroup-item tooltipped tooltipped-${
-                    isPR ? "w" : "n"
-                } rendered ${isPR ? "js-rendered" : ""}`}
+                    isFileList ? "w" : "n"
+                } rendered ${isFileList ? "js-rendered" : ""}`}
                 disabled={disabled}
                 aria-label={
                     disabled
                         ? disabledTooltip
-                        : `Display the ${isPR ? "rich diff" : "rendered blob"}`
+                        : `Display the ${
+                              isFileList ? "rich diff" : "rendered blob"
+                          }`
                 }
                 onClick={disabled ? null : showRendered(frameElem)}
                 data-disable-with=""
@@ -154,7 +159,12 @@ const addButtonsToFileHeaderActions = (
 ): void => {
     if (select.exists(`.BtnGroup.${featureClass}`, actionsElem)) return;
     actionsElem.insertBefore(
-        asNode(viewerButtonToggleGroup({ isPR: isPRFiles(), frameElem })),
+        asNode(
+            viewerButtonToggleGroup({
+                frameElem,
+                isFileList: isPRFiles() || isCommit(),
+            }),
+        ),
         actionsElem.firstChild,
     );
 };
@@ -178,10 +188,9 @@ const addFrameToFileBody = (
     return bodyElem.appendChild(asNode(frameElem)) as HTMLElement;
 };
 
-const extendHtmlFileDetailsElements = async (): Promise<void> => {
-    const commitSha = (select(
-        ".js-reviews-container #head_sha",
-    ) as HTMLInputElement).value;
+const extendHtmlFileDetailsElements = (commitSha: string) => async (): Promise<
+    void
+> => {
     for (const elem of select.all(".file.Details")) {
         const fileHeaderElem: HTMLElement = selectOrThrow(".file-header", elem);
         if (!fileHeaderElem.dataset.path) continue;
@@ -201,8 +210,18 @@ const extendHtmlFileDetailsElements = async (): Promise<void> => {
     }
 };
 
-const initPRFiles = async (): Promise<void> => {
-    observeEl("#files", extendHtmlFileDetailsElements, {
+const initCommit = (): void => {
+    observeEl("#files", extendHtmlFileDetailsElements(getCommitSha()), {
+        childList: true,
+        subtree: true,
+    });
+};
+
+const initPRFiles = (): void => {
+    const commitSha = (select(
+        ".js-reviews-container #head_sha",
+    ) as HTMLInputElement).value;
+    observeEl("#files", extendHtmlFileDetailsElements(commitSha), {
         childList: true,
         subtree: true,
     });
@@ -230,14 +249,15 @@ const initSingleFile = async (): Promise<void> => {
 const initFeature = async (): Promise<boolean> => {
     const enabled = [
         isPRFiles() && initPRFiles(),
-        isSingleFile() && initSingleFile(),
+        isSingleFile() && (await initSingleFile()),
+        isCommit() && initCommit(),
     ];
     return enabled.some(Boolean);
 };
 
 featureSet.add({
     id: "extend-file-preview-html",
-    include: () => isPRFiles() || isSingleFile(),
+    include: () => isCommit() || isPRFiles() || isSingleFile(),
     init: initFeature,
     load: onAjaxedPagesRaw,
 });

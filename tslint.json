@@ -15,7 +15,6 @@
         "no-irregular-whitespace": true,
         "no-parameter-reassignment": true,
         "no-trailing-whitespace": true,
-        "no-unused-variable": true,
         "no-require-imports": true,
         "no-unnecessary-callback-wrapper": true,
         "no-use-before-declare": true,
