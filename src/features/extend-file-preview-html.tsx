@@ -48,7 +48,6 @@ const selectButton = (element: HTMLElement) => {
 const showSource = (frameElem: HTMLElement) => (event: React.MouseEvent) => {
     frameElem.style.display = "none";
     const frameParent = frameElem.parentElement;
-    log(frameParent);
     frameParent.style.overflowX = "auto";
     frameParent.style.height = "auto";
     return selectButton(event.currentTarget as HTMLElement);
@@ -56,7 +55,6 @@ const showSource = (frameElem: HTMLElement) => (event: React.MouseEvent) => {
 const showRendered = (frameElem: HTMLElement) => (event: React.MouseEvent) => {
     frameElem.style.display = "block";
     const frameParent = frameElem.parentElement;
-    log((frameElem as AnyObject).contentWindow.document.body.scrollHeight);
     frameParent.style.overflowX = "hidden";
     frameParent.style.height = `${(frameElem as AnyObject).contentWindow
         .document.body.scrollHeight + 20}px`;
@@ -160,6 +158,9 @@ const addButtonsToFileHeaderActions = (
     );
 };
 
+const replaceLinksInHTML = (html: string) =>
+    html.replace(/<a/g, `<a target="_blank"`);
+
 const addFrameToFileBody = (
     bodyElem: HTMLElement,
     frameURL: string,
@@ -168,7 +169,10 @@ const addFrameToFileBody = (
     if (select.exists(`iframe.${featureClass}`, bodyElem)) {
         return select(`iframe.${featureClass}`, bodyElem);
     }
-    const frameElem = frameElement({ src: frameURL, srcDoc: frameHTML });
+    const frameElem = frameElement({
+        src: frameURL,
+        srcDoc: replaceLinksInHTML(frameHTML),
+    });
     bodyElem.style.position = "relative";
     return bodyElem.appendChild(asNode(frameElem)) as HTMLElement;
 };
