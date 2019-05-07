@@ -16,7 +16,8 @@ export const getRepoPath = (): string =>
         .slice(2)
         .join("/");
 
-export const getCommitSha = (): string =>
-    getRepoPath()
-        .match(regexCommit)[0]
-        .split("/")[1];
+export const getCommitSha = (): string => {
+    const match = getRepoPath().match(regexCommit);
+    if (!match) return null;
+    return match[0].split("/")[1];
+};
