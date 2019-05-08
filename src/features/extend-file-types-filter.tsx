@@ -68,7 +68,6 @@ const getPRFiles = async (): Promise<PRFile[]> => {
     const pullUrl = getCleanPathname().replace("/pull/", "/pulls/");
     const apiUrl = `repos/${pullUrl}?per_page=1000`;
     const result = await api.v3(apiUrl); // Uses v3 as v4 does not contain deleted status information
-    console.log(result);
     return result.map(
         ({ status, filename }: { status: string; filename: string }) => ({
             fileName: filename,

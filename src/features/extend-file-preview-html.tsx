@@ -52,9 +52,9 @@ const showSource = (frameElem: HTMLElement) => (event: any) => {
     if (button.disabled || !frameElem) return;
     frameElem.style.display = "none";
     const frameParent = frameElem.parentElement;
-    frameParent.style.overflow = "auto";
-    frameParent.style.height = "auto";
-    frameParent.style.maxHeight = "auto";
+    delete frameParent.style.overflow;
+    delete frameParent.style.height;
+    delete frameParent.style.maxHeight;
     return selectButton(button);
 };
 const showRendered = (frameElem: HTMLElement) => (event: any) => {
@@ -64,7 +64,7 @@ const showRendered = (frameElem: HTMLElement) => (event: any) => {
     const frameParent = frameElem.parentElement;
     frameParent.style.overflow = "hidden";
     const height = `${(frameElem as AnyObject).contentWindow.document.body
-        .scrollHeight + 20}px`;
+        .scrollHeight + 32}px`;
     frameParent.style.height = height;
     frameParent.style.maxHeight = height;
     return selectButton(button);
@@ -218,8 +218,9 @@ const addFrameToFileBody = (
     bodyElem: HTMLElement,
     frameURL: string,
     frameHTML: string,
+    canDefer: boolean,
 ): HTMLElement => {
-    if (!select.exists(".js-blob-wrapper", bodyElem)) {
+    if (canDefer && !select.exists(".js-blob-wrapper", bodyElem)) {
         return null;
     }
     if (select.exists(`iframe.${featureClass}`, bodyElem)) {
@@ -247,6 +248,7 @@ const extendHtmlFileDetailsElements = (commitSha: string) => async (): Promise<
             selectOrThrow(".js-file-content", elem),
             pathToBlob(filePath),
             fileHTML,
+            true,
         );
         addButtonsToFileHeaderActions(
             selectOrThrow(".file-actions>.mt-1", fileHeaderElem),
@@ -284,6 +286,7 @@ const initSingleFile = async (): Promise<void> => {
         selectOrThrow(".Box.mt-3>.Box-body.blob-wrapper"),
         pathToBlob(filePath),
         fileHTML,
+        false,
     );
     addButtonsToFileHeaderActions(
         selectOrThrow(".d-flex", fileHeaderElem),
