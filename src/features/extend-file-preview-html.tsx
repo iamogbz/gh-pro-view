@@ -1,7 +1,9 @@
 import { PositionProperty } from "csstype";
 import React from "dom-chef";
 import { featureSet, onAjaxedPagesRaw } from "features";
+import { inlineSource } from "inline-source";
 import select from "select-dom";
+
 import * as api from "utils/api";
 import { getFileType } from "utils/file-type";
 import { observeEl } from "utils/mutation-observer";
@@ -14,6 +16,7 @@ const htmlTypes: Set<string> = new Set(["html", "xhtml"]);
 const toggleActionSource = "source";
 const toggleActionRender = "render";
 
+const htmlRender = "https://htmlpreview.github.io/?";
 const pathToBlob = (path: string) =>
     `https://raw.githubusercontent.com/${getUserRepo()}/${path}`;
 const pathToApi = (path: string) => `repos/${getUserRepo()}/contents/${path}`;
@@ -211,15 +214,20 @@ const addButtonsToFileHeaderActions = (
     );
 };
 
-const replaceLinksInHTML = (html: string) =>
-    html.replace(/<a/g, `<a target="_blank"`);
+const prepareHTML = async (html: string, url: string): Promise<string> => {
+    const inlineHtml = await inlineSource(html, {
+        attribute: false,
+        rootpath: url,
+    });
+    return inlineHtml.replace(/<a/g, `<a target="_blank"`);
+};
 
-const addFrameToFileBody = (
+const addFrameToFileBody = async (
     bodyElem: HTMLElement,
     frameURL: string,
     frameHTML: string,
     canDefer: boolean,
-): HTMLElement => {
+): Promise<HTMLElement> => {
     if (canDefer && !select.exists(".js-blob-wrapper", bodyElem)) {
         return null;
     }
@@ -227,8 +235,8 @@ const addFrameToFileBody = (
         return select(`iframe.${featureClass}`, bodyElem);
     }
     const frameElem = frameElement({
-        src: frameURL,
-        srcDoc: replaceLinksInHTML(frameHTML),
+        src: `${htmlRender}${frameURL}`,
+        srcDoc: await prepareHTML(frameHTML, frameURL),
     });
     bodyElem.style.position = "relative";
     return bodyElem.appendChild(asNode(frameElem)) as HTMLElement;
@@ -244,7 +252,7 @@ const extendHtmlFileDetailsElements = (commitSha: string) => async (): Promise<
         const fileType = getFileType(filePath);
         if (!htmlTypes.has(fileType)) continue;
         const fileHTML = await getFileContent(filePath);
-        const frameElem = addFrameToFileBody(
+        const frameElem = await addFrameToFileBody(
             selectOrThrow(".js-file-content", elem),
             pathToBlob(filePath),
             fileHTML,
@@ -282,7 +290,7 @@ const initSingleFile = async (): Promise<void> => {
     const fileType = getFileType(filePath);
     if (!htmlTypes.has(fileType)) return;
     const fileHTML = await getFileContent(filePath);
-    const frameElem = addFrameToFileBody(
+    const frameElem = await addFrameToFileBody(
         selectOrThrow(".Box.mt-3>.Box-body.blob-wrapper"),
         pathToBlob(filePath),
         fileHTML,

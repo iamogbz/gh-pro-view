@@ -163,6 +163,7 @@
     "dependencies": {
         "dom-chef": "^3.6.0",
         "dom-loaded": "^1.2.0",
+        "inline-source": "^6.1.9",
         "lodash": "^4.17.11",
         "select-dom": "^5.0.1",
         "type-fest": "^0.4.1",
