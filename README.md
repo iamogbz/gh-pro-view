@@ -15,11 +15,11 @@ Some ideas for github web ui
 
 ## Features
 
-### File Preview HTML
+### [File Preview HTML](https://github.com/twbs/bootstrap/blob/gh-pages/2.3.2/index.html)
 
 ![extend-file-preview-html-demo](src/assets/images/extend-file-preview-html-demo.gif)
 
-### File Types Filter
+### [File Types Filter](https://github.com/facebook/react/pull/13509/files)
 
 ![extend-file-types-filter-demo](src/assets/images/extend-file-types-demo.gif)
 
@@ -33,4 +33,7 @@ See the [contribution guide](https://github.com/iamogbz/gh-pro-view/blob/master/
 
 ## Extras
 
-**Heavily** inspired by the awesome [`refined-github`](https://github.com/sindresorhus/refined-github)
+Heavily influenced by
+
+- The awesome and [`refined-github`](https://github.com/sindresorhus/refined-github)
+- The inspired [`github html preview`](https://github.com/htmlpreview/htmlpreview.github.com)
