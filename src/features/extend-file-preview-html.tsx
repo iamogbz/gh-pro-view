@@ -52,9 +52,9 @@ const showSource = (frameElem: HTMLElement) => (event: any) => {
     if (button.disabled || !frameElem) return;
     frameElem.style.display = "none";
     const frameParent = frameElem.parentElement;
-    delete frameParent.style.overflow;
-    delete frameParent.style.height;
-    delete frameParent.style.maxHeight;
+    frameParent.style.removeProperty("overflow");
+    frameParent.style.removeProperty("height");
+    frameParent.style.removeProperty("max-height");
     return selectButton(button);
 };
 const showRendered = (frameElem: HTMLElement) => (event: any) => {
