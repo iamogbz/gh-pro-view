@@ -1,7 +1,6 @@
 import { PositionProperty } from "csstype";
 import React from "dom-chef";
 import { featureSet, onAjaxedPagesRaw } from "features";
-import { inlineSource } from "inline-source";
 import select from "select-dom";
 
 import * as api from "utils/api";
@@ -214,15 +213,8 @@ const addButtonsToFileHeaderActions = (
     );
 };
 
-const prepareHTML = async (html: string, url: string): Promise<string> => {
-    const inlineHtml = await inlineSource(html, {
-        attribute: false,
-        compress: false,
-        fs: { readFileSync: () => html },
-        rootpath: url,
-    });
-    return inlineHtml.replace(/<a/g, `<a target="_blank"`);
-};
+const prepareHTML = async (html: string, url: string): Promise<string> =>
+    html.replace(/<a/g, `<a target="_blank"`);
 
 const addFrameToFileBody = async (
     bodyElem: HTMLElement,
