@@ -217,6 +217,8 @@ const addButtonsToFileHeaderActions = (
 const prepareHTML = async (html: string, url: string): Promise<string> => {
     const inlineHtml = await inlineSource(html, {
         attribute: false,
+        compress: false,
+        fs: { readFileSync: () => html },
         rootpath: url,
     });
     return inlineHtml.replace(/<a/g, `<a target="_blank"`);

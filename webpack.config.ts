@@ -30,6 +30,7 @@ const configuration: Configuration = {
             },
         ],
     },
+    node: { fs: "empty" },
     output: {
         filename: "[name].js",
         path: path.resolve(__dirname, "./dist"),
