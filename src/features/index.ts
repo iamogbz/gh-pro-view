@@ -16,8 +16,7 @@ export const initAll = () => {
             log("🐙", id);
         } catch (error) {
             log("☠️", id);
-            throw error;
-            // log.error(error);
+            log.error(error);
         }
     });
 };
