@@ -10,6 +10,21 @@ interface ResourceDefinition {
     queue?(value: CheerioElement, ongoing: Array<Promise<string>>): void;
 }
 
+const insertInto = (
+    $: CheerioStatic,
+    selector: string,
+    tagName: string,
+    content: string = "",
+    attributes: AnyObject = {},
+) => {
+    const elem = document.createElement(tagName);
+    for (const [name, value] of Object.entries(attributes)) {
+        elem.setAttribute(name, value);
+    }
+    elem.innerHTML = content;
+    $(selector).append(elem.outerHTML);
+};
+
 export const inline = async ({
     html,
     base = "",
@@ -30,25 +45,19 @@ export const inline = async ({
         js: ResourceDefinition;
     } = {
         css: {
-            insert: content => {
-                const node = document.createElement("style");
-                node.setAttribute("type", "text/css");
-                node.innerHTML = content;
-                $("head").append(node.outerHTML);
-            },
+            insert: content =>
+                insertInto($, "head", "style", content, { type: "text/css" }),
             queue: (v, q) => v.attribs.href && q.push(resolve(v.attribs.href)),
             selector: `link[rel="stylesheet"]`,
             tasks: [],
         },
         img: { tasks: [] },
         js: {
-            insert: content => {
-                const node = document.createElement("script");
-                node.setAttribute("type", "application/javascript");
-                node.innerHTML = content;
-                $("body").append(node.outerHTML);
-            },
-            queue: (v, q) => v.attribs.href && q.push(resolve(v.attribs.href)),
+            insert: content =>
+                insertInto($, "body", "script", content, {
+                    type: "application/javascript",
+                }),
+            queue: (v, q) => v.attribs.src && q.push(resolve(v.attribs.src)),
             selector: `script[src*=".js"]`,
             tasks: [],
         },
@@ -57,9 +66,9 @@ export const inline = async ({
     for (const [, r] of Object.entries(resources)) {
         if (!r.selector) continue;
         $(r.selector)
-            .each((_, v) => r.queue(v, r.tasks))
+            .each((_, v) => r.queue && r.queue(v, r.tasks))
             .remove();
-        await Promise.all(r.tasks.map(t => t.then(r.insert)));
+        await Promise.all(r.tasks.map(t => r.insert && t.then(r.insert)));
     }
 
     return $.html();
