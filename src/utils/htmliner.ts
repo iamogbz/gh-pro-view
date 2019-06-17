@@ -1,5 +1,7 @@
-import { parse } from "node-html-parser";
-import nodePath from "path";
+import cheerio from "cheerio";
+import path from "path";
+
+export const isAbsolute = (p: string) => p && /^(?:[a-z]+:)?\/\//i.test(p);
 
 export const inline = async ({
     html,
@@ -10,41 +12,42 @@ export const inline = async ({
     base: string;
     load?(url: string): Promise<string>;
 }) => {
-    const root = parse(html, {
-        pre: true,
-        script: true,
-        style: true,
-    }) as AnyObject;
-    const head = root.querySelector("head");
-    const body = root.querySelector("body");
+    const $ = cheerio.load(html);
     const resolve = async (target: string) => {
-        const prefix = target.startsWith("/") ? "" : `${base}/`;
-        return load(nodePath.normalize(`${prefix}${target}`));
+        const noPrefix = isAbsolute(target) || target.startsWith("/");
+        return load(noPrefix ? target : path.normalize(`${base}/${target}`));
     };
+    const tasks: Array<Promise<void>> = [];
     // inline css
-    await Promise.all(
-        root.querySelectorAll("link").map(async (link: AnyObject) => {
-            if (link.attributes.href && link.attributes.rel === "stylesheet") {
-                const node = document.createElement("style");
-                node.setAttribute("type", "text/css");
-                node.innerHTML = await resolve(link.attributes.href);
-                head.appendChild(node.outerHTML);
+    $(`link[rel="stylesheet"]`)
+        .each((_, link) => {
+            if (link.attribs.href) {
+                tasks.push(
+                    resolve(link.attribs.href).then(content => {
+                        const node = document.createElement("style");
+                        node.setAttribute("type", "text/css");
+                        node.innerHTML = content;
+                        $("head").append(node.outerHTML);
+                    }),
+                );
             }
-        }),
-    );
+        })
+        .remove();
     // inline javascript
-    await Promise.all(
-        root.querySelectorAll("script").map(async (script: AnyObject) => {
-            if (
-                script.attributes.src &&
-                script.attributes.src.includes(".js")
-            ) {
-                const node = document.createElement("script");
-                node.setAttribute("type", "application/javascript");
-                node.innerHTML = await resolve(script.attributes.src);
-                body.appendChild(node.outerHTML);
+    $(`script[src*=".js"]`)
+        .each((_, script) => {
+            if (script.attribs.src) {
+                tasks.push(
+                    resolve(script.attribs.src).then(content => {
+                        const node = document.createElement("script");
+                        node.setAttribute("type", "application/javascript");
+                        node.innerHTML = content;
+                        $("body").append(node.outerHTML);
+                    }),
+                );
             }
-        }),
-    );
-    return root.toString();
+        })
+        .remove();
+    await Promise.all(tasks);
+    return $.html();
 };

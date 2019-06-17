@@ -1,12 +1,12 @@
 import { PositionProperty } from "csstype";
 import React from "dom-chef";
 import { featureSet, onAjaxedPagesRaw } from "features";
-import nodePath from "path";
+import path from "path";
 import select from "select-dom";
 
 import * as api from "utils/api";
 import { getFileType } from "utils/file-type";
-import { inline } from "utils/htmliner";
+import { inline, isAbsolute } from "utils/htmliner";
 import { log } from "utils/log";
 import { observeEl } from "utils/mutation-observer";
 import { isCommit, isPRFiles, isSingleFile } from "utils/page-detect";
@@ -18,23 +18,25 @@ const htmlTypes: Set<string> = new Set(["html", "xhtml"]);
 const toggleActionSource = "source";
 const toggleActionRender = "render";
 
-const isHtml = (path: string) => htmlTypes.has(getFileType(path));
+const isHtml = (filePath: string) => htmlTypes.has(getFileType(filePath));
 
-const pathToBlob = (path: string) =>
-    `https://raw.githubusercontent.com/${getUserRepo()}/${path}`;
-const pathToApi = (path: string) => `repos/${getUserRepo()}/contents/${path}`;
+const pathToBlob = (filePath: string) =>
+    `https://raw.githubusercontent.com/${getUserRepo()}/${filePath}`;
+const pathToApi = (filePath: string) =>
+    `repos/${getUserRepo()}/contents/${filePath}`;
 const safeFetch = (input: RequestInfo, init?: RequestInit) =>
     fetch(input, init).then(r => {
         if (r.status !== 200) throw new Error(`${r.status} - ${r.statusText}`);
         return r;
     });
 
-const getFileContent = async (path: string): Promise<string> =>
-    safeFetch(pathToBlob(path))
+const getFileContent = async (filePath: string): Promise<string> =>
+    safeFetch(isAbsolute(filePath) ? filePath : pathToBlob(filePath))
         .then(r => r.text())
         .catch(async e => {
             log.info(e);
-            const [ref, ...rest] = path.split("/");
+            if (isAbsolute(filePath)) return null;
+            const [ref, ...rest] = filePath.split("/");
             const r = await api.v3(`${pathToApi(rest.join("/"))}?ref=${ref}`);
             return atob(r.content);
         })
@@ -43,10 +45,13 @@ const getFileContent = async (path: string): Promise<string> =>
             return null;
         });
 
-const prepareHTML = async (html: string, path: string): Promise<string> =>
+const prepareHTML = async (
+    htmlContent: string,
+    filePath: string,
+): Promise<string> =>
     inline({
-        base: nodePath.dirname(path),
-        html: html.replace(/<a/g, `<a target="_blank"`),
+        base: path.dirname(filePath),
+        html: htmlContent.replace(/<a/g, `<a target="_blank"`),
         load: getFileContent,
     });
 

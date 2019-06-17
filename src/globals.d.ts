@@ -6,4 +6,3 @@ interface Feature {
 }
 
 declare module "jest-mock-props";
-declare module "node-html-parser";
