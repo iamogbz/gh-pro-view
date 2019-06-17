@@ -52,12 +52,15 @@ export const inline = async ({
             tasks: [],
         },
         img: { tasks: [] },
+        /*
+         * This just removes the javascript tags without replacements
+         */
         js: {
-            insert: content =>
-                insertInto($, "body", "script", content, {
-                    type: "application/javascript",
-                }),
-            queue: (v, q) => v.attribs.src && q.push(resolve(v.attribs.src)),
+            // insert: content =>
+            //     insertInto($, "body", "script", content, {
+            //         type: "application/javascript",
+            //     }),
+            // queue: (v, q) => v.attribs.src && q.push(resolve(v.attribs.src)),
             selector: `script[src*=".js"]`,
             tasks: [],
         },
