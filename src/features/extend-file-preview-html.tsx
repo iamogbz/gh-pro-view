@@ -1,9 +1,13 @@
 import { PositionProperty } from "csstype";
 import React from "dom-chef";
 import { featureSet, onAjaxedPagesRaw } from "features";
+import path from "path";
 import select from "select-dom";
+
 import * as api from "utils/api";
 import { getFileType } from "utils/file-type";
+import { inline, isAbsolute } from "utils/htmliner";
+import { log } from "utils/log";
 import { observeEl } from "utils/mutation-observer";
 import { isCommit, isPRFiles, isSingleFile } from "utils/page-detect";
 import { selectOrThrow } from "utils/select-or-throw";
@@ -14,27 +18,42 @@ const htmlTypes: Set<string> = new Set(["html", "xhtml"]);
 const toggleActionSource = "source";
 const toggleActionRender = "render";
 
-const pathToBlob = (path: string) =>
-    `https://raw.githubusercontent.com/${getUserRepo()}/${path}`;
-const pathToApi = (path: string) => `repos/${getUserRepo()}/contents/${path}`;
+const isHtml = (filePath: string) => htmlTypes.has(getFileType(filePath));
+
+const pathToBlob = (filePath: string) =>
+    `https://raw.githubusercontent.com/${getUserRepo()}/${filePath}`;
+const pathToApi = (filePath: string) =>
+    `repos/${getUserRepo()}/contents/${filePath}`;
 const safeFetch = (input: RequestInfo, init?: RequestInit) =>
     fetch(input, init).then(r => {
         if (r.status !== 200) throw new Error(`${r.status} - ${r.statusText}`);
         return r;
     });
 
-const getFileContent = async (path: string) => {
-    try {
-        return await safeFetch(pathToBlob(path)).then(r => r.text());
-    } catch (e) {
-        // log.error(e);
-        const [ref, ...rest] = path.split("/");
-        const { content } = await api.v3(
-            `${pathToApi(rest.join("/"))}?ref=${ref}`,
-        );
-        return atob(content);
-    }
-};
+const getFileContent = async (filePath: string): Promise<string> =>
+    safeFetch(isAbsolute(filePath) ? filePath : pathToBlob(filePath))
+        .then(r => r.text())
+        .catch(async e => {
+            log.info(e);
+            if (isAbsolute(filePath)) return null;
+            const [ref, ...rest] = filePath.split("/");
+            const r = await api.v3(`${pathToApi(rest.join("/"))}?ref=${ref}`);
+            return atob(r.content);
+        })
+        .catch(e => {
+            log.error(e);
+            return null;
+        });
+
+const prepareHTML = async (
+    htmlContent: string,
+    filePath: string,
+): Promise<string> =>
+    inline({
+        base: path.dirname(filePath),
+        html: htmlContent.replace(/<a/g, `<a target="_blank"`),
+        load: getFileContent,
+    });
 
 const asNode = (element: JSX.Element): Node => (element as unknown) as Node;
 
@@ -211,51 +230,52 @@ const addButtonsToFileHeaderActions = (
     );
 };
 
-const replaceLinksInHTML = (html: string) =>
-    html.replace(/<a/g, `<a target="_blank"`);
-
-const addFrameToFileBody = (
+const addFrameToFileBody = async (
     bodyElem: HTMLElement,
-    frameURL: string,
-    frameHTML: string,
+    filePath: string,
     canDefer: boolean,
-): HTMLElement => {
+): Promise<HTMLElement> => {
     if (canDefer && !select.exists(".js-blob-wrapper", bodyElem)) {
         return null;
     }
     if (select.exists(`iframe.${featureClass}`, bodyElem)) {
         return select(`iframe.${featureClass}`, bodyElem);
     }
+    const frameHtml = await getFileContent(filePath).then(html =>
+        prepareHTML(html, filePath),
+    );
     const frameElem = frameElement({
-        src: frameURL,
-        srcDoc: replaceLinksInHTML(frameHTML),
+        src: `https://htmlpreview.github.io/?${pathToBlob(filePath)}`,
+        srcDoc: frameHtml,
     });
     bodyElem.style.position = "relative";
     return bodyElem.appendChild(asNode(frameElem)) as HTMLElement;
 };
 
-const extendHtmlFileDetailsElements = (commitSha: string) => async (): Promise<
-    void
-> => {
-    for (const elem of select.all(".file.Details")) {
-        const fileHeaderElem: HTMLElement = selectOrThrow(".file-header", elem);
-        if (!fileHeaderElem.dataset.path) continue;
-        const filePath = `${commitSha}/${fileHeaderElem.dataset.path}`;
-        const fileType = getFileType(filePath);
-        if (!htmlTypes.has(fileType)) continue;
-        const fileHTML = await getFileContent(filePath);
-        const frameElem = addFrameToFileBody(
-            selectOrThrow(".js-file-content", elem),
-            pathToBlob(filePath),
-            fileHTML,
-            true,
-        );
-        addButtonsToFileHeaderActions(
-            selectOrThrow(".file-actions>.mt-1", fileHeaderElem),
-            frameElem,
-        );
-    }
-};
+const extendHtmlFileDetailsElements = (commitSha: string) => async () =>
+    Promise.all(
+        select.all(".file.Details").map(async elem => {
+            const fileHeaderElem: HTMLElement = selectOrThrow(
+                ".file-header",
+                elem,
+            );
+            if (!fileHeaderElem.dataset.path) return;
+            const filePath = `${commitSha}/${fileHeaderElem.dataset.path}`;
+            if (!isHtml(filePath)) return;
+            return addFrameToFileBody(
+                selectOrThrow(".js-file-content", elem),
+                filePath,
+                true,
+            )
+                .then(frameElem =>
+                    addButtonsToFileHeaderActions(
+                        selectOrThrow(".file-actions>.mt-1", fileHeaderElem),
+                        frameElem,
+                    ),
+                )
+                .catch(e => log.error(e));
+        }),
+    );
 
 const initCommit = (): void => {
     observeEl("#files", extendHtmlFileDetailsElements(getCommitSha()), {
@@ -279,13 +299,10 @@ const initSingleFile = async (): Promise<void> => {
         ".Box.mt-3>.Box-header.py-2",
     );
     const filePath = getRepoPath().replace("blob/", "");
-    const fileType = getFileType(filePath);
-    if (!htmlTypes.has(fileType)) return;
-    const fileHTML = await getFileContent(filePath);
-    const frameElem = addFrameToFileBody(
+    if (!isHtml(filePath)) return;
+    const frameElem = await addFrameToFileBody(
         selectOrThrow(".Box.mt-3>.Box-body.blob-wrapper"),
-        pathToBlob(filePath),
-        fileHTML,
+        filePath,
         false,
     );
     addButtonsToFileHeaderActions(
