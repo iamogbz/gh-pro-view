@@ -1,6 +1,7 @@
 import { PositionProperty } from "csstype";
 import React from "dom-chef";
 import { featureSet, onAjaxedPagesRaw } from "features";
+import nodePath from "path";
 import select from "select-dom";
 
 import * as api from "utils/api";
@@ -44,12 +45,9 @@ const getFileContent = async (path: string): Promise<string> =>
 
 const prepareHTML = async (html: string, path: string): Promise<string> =>
     inline({
-        base: path,
+        base: nodePath.dirname(path),
         html: html.replace(/<a/g, `<a target="_blank"`),
-        load: async url => {
-            log(url);
-            return "";
-        },
+        load: getFileContent,
     });
 
 const asNode = (element: JSX.Element): Node => (element as unknown) as Node;

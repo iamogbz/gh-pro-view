@@ -1,4 +1,5 @@
 import { parse } from "node-html-parser";
+import nodePath from "path";
 
 export const inline = async ({
     html,
@@ -16,8 +17,10 @@ export const inline = async ({
     }) as AnyObject;
     const head = root.querySelector("head");
     const body = root.querySelector("body");
-    const resolve = async (target: string) =>
-        load(target.startsWith("/") ? target : `${base}/${target}`);
+    const resolve = async (target: string) => {
+        const prefix = target.startsWith("/") ? "" : `${base}/`;
+        return load(nodePath.normalize(`${prefix}${target}`));
+    };
     // inline css
     await Promise.all(
         root.querySelectorAll("link").map(async (link: AnyObject) => {
