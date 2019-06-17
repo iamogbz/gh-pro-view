@@ -5,6 +5,7 @@ import select from "select-dom";
 
 import * as api from "utils/api";
 import { getFileType } from "utils/file-type";
+import { inline } from "utils/htmliner";
 import { log } from "utils/log";
 import { observeEl } from "utils/mutation-observer";
 import { isCommit, isPRFiles, isSingleFile } from "utils/page-detect";
@@ -31,7 +32,7 @@ const getFileContent = async (path: string): Promise<string> =>
     safeFetch(pathToBlob(path))
         .then(r => r.text())
         .catch(async e => {
-            // log.error(e);
+            log.info(e);
             const [ref, ...rest] = path.split("/");
             const r = await api.v3(`${pathToApi(rest.join("/"))}?ref=${ref}`);
             return atob(r.content);
@@ -42,7 +43,14 @@ const getFileContent = async (path: string): Promise<string> =>
         });
 
 const prepareHTML = async (html: string, path: string): Promise<string> =>
-    html.replace(/<a/g, `<a target="_blank"`); // TODO: inline html with path
+    inline({
+        base: path,
+        html: html.replace(/<a/g, `<a target="_blank"`),
+        load: async url => {
+            log(url);
+            return "";
+        },
+    });
 
 const asNode = (element: JSX.Element): Node => (element as unknown) as Node;
 
