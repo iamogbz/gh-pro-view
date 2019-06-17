@@ -3,6 +3,13 @@ import path from "path";
 
 export const isAbsolute = (p: string) => p && /^(?:[a-z]+:)?\/\//i.test(p);
 
+interface ResourceDefinition {
+    selector?: string;
+    tasks: Array<Promise<string>>;
+    insert?(content: string): void;
+    queue?(value: CheerioElement, ongoing: Array<Promise<string>>): void;
+}
+
 export const inline = async ({
     html,
     base = "",
@@ -17,37 +24,43 @@ export const inline = async ({
         const noPrefix = isAbsolute(target) || target.startsWith("/");
         return load(noPrefix ? target : path.normalize(`${base}/${target}`));
     };
-    const tasks: Array<Promise<void>> = [];
-    // inline css
-    $(`link[rel="stylesheet"]`)
-        .each((_, link) => {
-            if (link.attribs.href) {
-                tasks.push(
-                    resolve(link.attribs.href).then(content => {
-                        const node = document.createElement("style");
-                        node.setAttribute("type", "text/css");
-                        node.innerHTML = content;
-                        $("head").append(node.outerHTML);
-                    }),
-                );
-            }
-        })
-        .remove();
-    // inline javascript
-    $(`script[src*=".js"]`)
-        .each((_, script) => {
-            if (script.attribs.src) {
-                tasks.push(
-                    resolve(script.attribs.src).then(content => {
-                        const node = document.createElement("script");
-                        node.setAttribute("type", "application/javascript");
-                        node.innerHTML = content;
-                        $("body").append(node.outerHTML);
-                    }),
-                );
-            }
-        })
-        .remove();
-    await Promise.all(tasks);
+    const resources: {
+        css: ResourceDefinition;
+        img: ResourceDefinition;
+        js: ResourceDefinition;
+    } = {
+        css: {
+            insert: content => {
+                const node = document.createElement("style");
+                node.setAttribute("type", "text/css");
+                node.innerHTML = content;
+                $("head").append(node.outerHTML);
+            },
+            queue: (v, q) => v.attribs.href && q.push(resolve(v.attribs.href)),
+            selector: `link[rel="stylesheet"]`,
+            tasks: [],
+        },
+        img: { tasks: [] },
+        js: {
+            insert: content => {
+                const node = document.createElement("script");
+                node.setAttribute("type", "application/javascript");
+                node.innerHTML = content;
+                $("body").append(node.outerHTML);
+            },
+            queue: (v, q) => v.attribs.href && q.push(resolve(v.attribs.href)),
+            selector: `script[src*=".js"]`,
+            tasks: [],
+        },
+    };
+
+    for (const [, r] of Object.entries(resources)) {
+        if (!r.selector) continue;
+        $(r.selector)
+            .each((_, v) => r.queue(v, r.tasks))
+            .remove();
+        await Promise.all(r.tasks.map(t => t.then(r.insert)));
+    }
+
     return $.html();
 };
