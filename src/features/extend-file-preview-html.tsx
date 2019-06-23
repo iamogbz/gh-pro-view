@@ -50,7 +50,8 @@ const prepareHTML = async (
     filePath: string,
 ): Promise<string> =>
     inline({
-        base: path.dirname(filePath),
+        base: path.dirname(pathToBlob(filePath)),
+        folder: path.dirname(filePath),
         html: htmlContent.replace(/<a/g, `<a target="_blank"`),
         load: getFileContent,
     });

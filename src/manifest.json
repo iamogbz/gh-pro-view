@@ -20,5 +20,5 @@
         "chrome_style": true
     },
     "short_name": "gh-pro-view",
-    "permissions": ["storage", "activeTab", "https://api.github.com/*"]
+    "permissions": ["activeTab", "management", "storage", "*://*.github.com/*"]
 }
