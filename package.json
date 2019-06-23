@@ -130,6 +130,7 @@
         "commitizen": "^3.0.7",
         "copy-webpack-plugin": "^5.0.3",
         "coveralls": "^3.0.3",
+        "crx-livereload": "^0.1.1",
         "cz-conventional-changelog": "^2.1.0",
         "eslint": "^6.0.0",
         "eslint-config-airbnb": "^17.1.0",
@@ -168,7 +169,6 @@
         "lodash": "^4.17.11",
         "select-dom": "^5.0.1",
         "type-fest": "^0.5.0",
-        "webext-dynamic-content-scripts": "^5.0.2",
         "webext-options-sync": "^0.16.0"
     }
 }

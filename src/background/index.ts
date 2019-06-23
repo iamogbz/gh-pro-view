@@ -1,3 +1,4 @@
+import "crx-livereload";
 import OptionsSync from "webext-options-sync";
 
 // Define defaults
