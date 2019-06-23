@@ -169,6 +169,6 @@
         "lodash": "^4.17.11",
         "select-dom": "^5.0.1",
         "type-fest": "^0.5.0",
-        "webext-options-sync": "^0.16.0"
+        "webext-options-sync": "^0.21.0"
     }
 }
