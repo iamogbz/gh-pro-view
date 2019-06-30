@@ -1,7 +1,7 @@
 {
     "manifest_version": 2,
     "name": "GitHub PRoView",
-    "version": "0.0.1",
+    "version": "0.0.0",
     "description": "Some ideas for Github's web ui",
     "icons": { "128": "icon.128.png" },
     "background": {
