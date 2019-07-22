@@ -107,7 +107,7 @@
         "@babel/preset-env": "^7.4.4",
         "@babel/preset-react": "^7.0.0",
         "@babel/preset-typescript": "^7.3.3",
-        "@commitlint/cli": "^8.0.0",
+        "@commitlint/cli": "^8.1.0",
         "@commitlint/config-conventional": "^8.0.0",
         "@commitlint/travis-cli": "^8.0.0",
         "@types/chrome": "0.0.86",
@@ -161,7 +161,7 @@
         "cheerio": "^1.0.0-rc.3",
         "dom-chef": "^3.6.0",
         "dom-loaded": "^1.2.0",
-        "lodash": "^4.17.11",
+        "lodash": "^4.17.15",
         "select-dom": "^5.0.1",
         "type-fest": "^0.6.0",
         "webext-options-sync": "^0.21.0"
