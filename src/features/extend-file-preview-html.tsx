@@ -183,9 +183,7 @@ const viewerButtonToggleGroup = ({
     updateToggle(asNode(sourceButton) as HTMLButtonElement, frameElem);
     updateToggle(asNode(renderButton) as HTMLButtonElement, frameElem);
     return (
-        <span
-            className={`BtnGroup ${featureClass} ${isFileList ? "mt-n1" : ""}`}
-        >
+        <span className={`BtnGroup ${featureClass}`}>
             {sourceButton}
             {renderButton}
         </span>
@@ -270,7 +268,7 @@ const extendHtmlFileDetailsElements = (commitSha: string) => async () =>
             )
                 .then(frameElem =>
                     addButtonsToFileHeaderActions(
-                        selectOrThrow(".file-actions>.mt-1", fileHeaderElem),
+                        selectOrThrow(".file-actions>.flex-items-stretch", fileHeaderElem),
                         frameElem,
                     ),
                 )
