@@ -94,3 +94,15 @@ export const inline = async ({
 
     return $.html();
 };
+
+export const include = (
+    html: string,
+    selector: string,
+    tagName: string,
+    content: string = "",
+    attributes: AnyObject = {},
+) => {
+    const $ = cheerio.load(html);
+    insertInto($, selector, tagName, content, attributes);
+    return $.html();
+};
