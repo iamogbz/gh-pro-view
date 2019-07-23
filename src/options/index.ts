@@ -1,3 +1,7 @@
 import OptionsSync from "webext-options-sync";
 
-new OptionsSync().syncForm("#options-form");
+new OptionsSync({
+    defaults: {
+        personalToken: "",
+    },
+}).syncForm("#options-form");
