@@ -11,7 +11,7 @@ const configuration: Configuration = {
     entry: ["background", "content", "options"].reduce(
         (entries, name) =>
             Object.assign(entries, {
-                [name]: ["@babel/polyfill", path.join(srcFolder, name)],
+                [name]: [path.join(srcFolder, name)],
             }),
         {},
     ),
@@ -24,7 +24,8 @@ const configuration: Configuration = {
                 use: {
                     loader: "babel-loader",
                     options: {
-                        presets: ["@babel/react", "@babel/preset-typescript"],
+                        plugins: ["@babel/plugin-transform-runtime"],
+                        presets: ["@babel/react", "@babel/typescript"],
                     },
                 },
             },

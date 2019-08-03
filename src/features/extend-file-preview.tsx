@@ -10,6 +10,7 @@ import { log } from "utils/log";
 import { observeEl } from "utils/mutation-observer";
 import { isCommit, isPRFiles, isSingleFile } from "utils/page-detect";
 import { selectOrThrow } from "utils/select-or-throw";
+import { request } from "utils/send-to-bg";
 import { getCommitSha, getRepoPath, getUserRepo } from "utils/url-path";
 
 export abstract class ExtendFilePreview {
@@ -60,7 +61,7 @@ export abstract class ExtendFilePreview {
             const response = await this.safeFetch(
                 isAbsolute(filePath) ? filePath : this.pathToBlob(filePath),
             );
-            return response.text();
+            return response.text;
         } catch (e) {
             log.info(e);
         }
@@ -77,20 +78,20 @@ export abstract class ExtendFilePreview {
         return null;
     }
 
+    protected async safeFetch(input: RequestInfo, init?: RequestInit) {
+        const r = await request(input, init);
+        if (r.status !== 200) {
+            throw new Error(`${r.status} - ${r.statusText}`);
+        }
+        return r;
+    }
+
     private isSupportedFile(filePath: string) {
         return this.fileTypes.has(getFileType(filePath));
     }
 
     private pathToApi(filePath: string) {
         return `repos/${getUserRepo()}/contents/${filePath}`;
-    }
-
-    private async safeFetch(input: RequestInfo, init?: RequestInit) {
-        const r = await fetch(input, init);
-        if (r.status !== 200) {
-            throw new Error(`${r.status} - ${r.statusText}`);
-        }
-        return r;
     }
 
     private asNode(element: JSX.Element): Node {

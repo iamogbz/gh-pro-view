@@ -20,5 +20,11 @@
         "chrome_style": true
     },
     "short_name": "gh-pro-view",
-    "permissions": ["activeTab", "management", "storage", "*://*.github.com/*"]
+    "permissions": [
+        "activeTab",
+        "management",
+        "storage",
+        "*://*.github.com/*",
+        "https://*.cloudfront.net/*"
+    ]
 }
