@@ -164,7 +164,7 @@
         "dom-loaded": "^1.2.0",
         "lodash": "^4.17.15",
         "select-dom": "^5.0.1",
-        "type-fest": "^0.6.0",
+        "type-fest": "^0.7.0",
         "webext-options-sync": "^0.21.2"
     }
 }
