@@ -117,7 +117,7 @@
         "@types/node": "^12.0.0",
         "@types/react": "^16.9.13",
         "@types/source-map": "^0.5.2",
-        "@types/webpack": "^4.4.25",
+        "@types/webpack": "^4.41.0",
         "acorn": "^7.1.0",
         "babel-eslint": "^10.0.3",
         "babel-loader": "^8.0.5",
