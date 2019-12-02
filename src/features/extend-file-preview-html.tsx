@@ -20,7 +20,7 @@ class ExtendFilePreviewHTML extends ExtendFilePreview {
             base: path.dirname(this.pathToBlob(filePath)),
             folder: path.dirname(filePath),
             html: fileContent.replace(/<a/g, `<a target="_blank"`),
-            load: this.getFileContent,
+            load: this.getFileContent.bind(this),
         });
     }
 }
