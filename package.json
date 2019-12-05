@@ -163,7 +163,7 @@
         "dom-chef": "^3.6.2",
         "dom-loaded": "^2.0.0",
         "lodash": "^4.17.15",
-        "select-dom": "^5.0.1",
+        "select-dom": "^5.1.0",
         "type-fest": "^0.8.1",
         "webext-options-sync": "^1.1.0"
     }
