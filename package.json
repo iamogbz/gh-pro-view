@@ -115,7 +115,7 @@
         "@types/jest": "^24.0.24",
         "@types/lodash": "^4.14.149",
         "@types/node": "^12.12.21",
-        "@types/react": "^16.9.16",
+        "@types/react": "^16.9.17",
         "@types/source-map": "^0.5.2",
         "@types/webpack": "^4.41.0",
         "acorn": "^7.1.0",
