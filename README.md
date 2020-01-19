@@ -19,6 +19,10 @@ Some ideas for github web ui
 
 ![extend-file-preview-html-demo](src/assets/images/extend-file-preview-html-demo.gif)
 
+### [File Preview APIB](https://github.com/apiaryio/api-blueprint-cheatsheet/blob/master/polls.apib)
+
+![extend-file-preview-apib-demo](src/assets/images/extend-file-preview-apib-demo.gif)
+
 ### [File Types Filter](https://github.com/facebook/react/pull/13509/files)
 
 ![extend-file-types-filter-demo](src/assets/images/extend-file-types-demo.gif)
