@@ -14,7 +14,7 @@ class ExtendFilePreviewAPIB extends ExtendFilePreview {
     }
 
     protected async prepareHTML(fileContent: string) {
-        const host = "https://d18szazccv2vl6.cloudfront.net";
+        const host = "https://d31myey2oeipxs.cloudfront.net/v1";
         const apib = Buffer.from(fileContent).toString("base64");
         return (await request(host, {
             headers: { "X-Blueprint": apib },
