@@ -14,11 +14,18 @@ class ExtendFilePreviewAPIB extends ExtendFilePreview {
     }
 
     protected async prepareHTML(fileContent: string) {
-        const host = "https://d18szazccv2vl6.cloudfront.net";
+        const host = "https://d31myey2oeipxs.cloudfront.net/v1";
         const apib = Buffer.from(fileContent).toString("base64");
-        return (await request(host, {
-            headers: { "X-Blueprint": apib },
-        })).text;
+        const renderedHtml = (
+            await request(host, {
+                headers: { "X-Blueprint": apib }
+            })
+        ).text;
+        return renderedHtml
+            .replace(/<a/g, `<a target="_blank"`)
+            .replace(/href="#/g, `style="cursor:default" no-href="#`)
+            .replace(".collapse-button{", ".collapse-button{display:none;")
+            .replace(".collapse-content{max-height:0;", ".collapse-content{");
     }
 }
 
