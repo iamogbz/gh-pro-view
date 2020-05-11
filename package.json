@@ -160,7 +160,7 @@
         "@babel/runtime": "^7.9.6",
         "@types/cheerio": "^0.22.18",
         "cheerio": "^1.0.0-rc.3",
-        "dom-chef": "^4.0.0",
+        "dom-chef": "^4.1.0",
         "dom-loaded": "^2.0.0",
         "lodash": "^4.17.15",
         "select-dom": "^6.0.2",
