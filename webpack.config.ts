@@ -1,8 +1,9 @@
 import * as CopyWebpackPlugin from "copy-webpack-plugin";
 import * as path from "path";
 // tslint:disable-next-line
-const ResponsiveJSONWebpackPlugin = require("responsive-json-webpack-plugin");
 import { Configuration } from "webpack";
+
+const ResponsiveJSONWebpackPlugin = require("responsive-json-webpack-plugin");
 
 const srcFolder = path.resolve("./src");
 
@@ -36,8 +37,8 @@ const configuration: Configuration = {
         path: path.resolve(__dirname, "./dist"),
     },
     plugins: [
-        new CopyWebpackPlugin(
-            ["content", "options"].reduce(
+        new CopyWebpackPlugin({
+            patterns: ["content", "options"].reduce(
                 (config, name) => {
                     config.push(
                         ...["html", "css"].map(ext => ({
@@ -49,7 +50,7 @@ const configuration: Configuration = {
                 },
                 [{ from: path.join(srcFolder, "manifest.json") }],
             ),
-        ),
+        }),
         new ResponsiveJSONWebpackPlugin({
             outputFolder: ".",
         }),
