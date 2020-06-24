@@ -110,7 +110,7 @@
         "@commitlint/cli": "^9.0.1",
         "@commitlint/config-conventional": "^8.3.4",
         "@commitlint/travis-cli": "^9.0.1",
-        "@types/chrome": "0.0.116",
+        "@types/chrome": "0.0.117",
         "@types/copy-webpack-plugin": "^6.0.0",
         "@types/jest": "^26.0.3",
         "@types/lodash": "^4.14.157",
