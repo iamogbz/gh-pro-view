@@ -160,7 +160,7 @@
         "webpack-cli": "^3.3.12"
     },
     "dependencies": {
-        "@babel/runtime": "^7.10.5",
+        "@babel/runtime": "^7.11.1",
         "@types/cheerio": "^0.22.21",
         "cheerio": "^1.0.0-rc.3",
         "dom-chef": "^4.1.0",
