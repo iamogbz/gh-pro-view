@@ -27,15 +27,16 @@
     },
     "main": "index.js",
     "scripts": {
-        "commitlint": "commitlint-travis",
         "build": "webpack --mode=production",
         "build-watch": "webpack --mode=development  --watch",
+        "commit": "git-cz",
+        "commitlint": "commitlint-travis",
+        "coveralls": "cat ./artifacts/coverage/lcov.info | coveralls",
+        "lint": "eslint",
         "test": "jest",
         "test-watch": "jest --watch",
-        "coveralls": "cat ./artifacts/coverage/lcov.info | coveralls",
-        "typecheck": "tsc --noEmit",
-        "commit": "git-cz",
-        "release": "semantic-release"
+        "release": "semantic-release",
+        "typecheck": "tsc --noEmit"
     },
     "release": {
         "plugins": [
