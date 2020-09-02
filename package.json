@@ -129,7 +129,7 @@
         "copy-webpack-plugin": "^6.0.3",
         "coveralls": "^3.1.0",
         "crx-livereload": "^0.2.1",
-        "cz-conventional-changelog": "^3.2.0",
+        "cz-conventional-changelog": "^3.3.0",
         "eslint": "^7.4.0",
         "eslint-config-airbnb": "^18.2.0",
         "eslint-config-prettier": "^6.11.0",
