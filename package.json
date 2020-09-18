@@ -157,7 +157,7 @@
         "tslint": "^6.1.3",
         "typescript": "^3.9.7",
         "webextension-polyfill-ts": "^0.20.0",
-        "webpack": "^4.44.1",
+        "webpack": "^4.44.2",
         "webpack-cli": "^3.3.12"
     },
     "dependencies": {
