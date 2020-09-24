@@ -162,7 +162,7 @@
     },
     "dependencies": {
         "@babel/runtime": "^7.11.2",
-        "@types/cheerio": "^0.22.21",
+        "@types/cheerio": "^0.22.22",
         "cheerio": "^1.0.0-rc.3",
         "dom-chef": "^4.2.2",
         "dom-loaded": "^2.0.0",
