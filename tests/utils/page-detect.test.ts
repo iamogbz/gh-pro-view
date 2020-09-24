@@ -6,7 +6,7 @@ import * as pageDetect from "utils/page-detect";
 const basePath = "/iamogbz/gh-pro-view";
 const location = { pathname: basePath } as Location;
 const windowLocationSpy = jest.spyOnProp(location, "pathname");
-jest.spyOn(window as AnyObject, "location", "get").mockImplementation(
+jest.spyOn(window, "location", "get").mockImplementation(
     () => location,
 );
 afterEach(jest.clearAllMocks);

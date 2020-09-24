@@ -7,7 +7,7 @@ const userRepo = "iamogbz/gh-pro-view";
 const basePath = `/${userRepo}`;
 const location = { pathname: basePath } as Location;
 const windowLocationSpy = jest.spyOnProp(location, "pathname");
-jest.spyOn(window as AnyObject, "location", "get").mockImplementation(
+jest.spyOn(window, "location", "get").mockImplementation(
     () => location,
 );
 
