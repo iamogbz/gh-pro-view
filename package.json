@@ -139,7 +139,7 @@
         "eslint-plugin-react": "^7.21.1",
         "husky": "^4.3.0",
         "jest": "^25.5.4",
-        "jest-mock-props": "^1.7.3",
+        "jest-mock-props": "^1.8.0",
         "lint-staged": "^10.4.0",
         "prettier": "^1.19.1",
         "prettier-eslint": "^11.0.0",
