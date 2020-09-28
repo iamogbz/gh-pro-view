@@ -1,4 +1,6 @@
-# GitHub PRoView
+**👋 This project has been migrated to [`oh-my-scripts`](https://github.com/iamogbz/oh-my-scripts), any further development will happen there. 👋**
+
+# ⚠️ GitHub PRoView
 
 [![Dependabot badge](https://badgen.net/dependabot/iamogbz/gh-pro-view/?icon=dependabot)](https://app.dependabot.com)
 [![Dependencies](https://david-dm.org/iamogbz/gh-pro-view.svg/status.svg)](https://david-dm.org/iamogbz/gh-pro-view.svg)
